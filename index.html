@@ -1,0 +1,184 @@
+<html><head><base href="." name="DottedStripper"/>
+<meta charset="UTF-8"/>
+<title>Removedor de Pontos e Traços - CPF/CNPJ</title>
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .container {
+    background: white;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+    width: 100%;
+    max-width: 500px;
+  }
+
+  h1 {
+    color: #2c3e50;
+    text-align: center;
+    margin-bottom: 1.5rem;
+  }
+
+  .input-group {
+    margin-bottom: 1.5rem;
+  }
+
+  label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #34495e;
+    font-weight: bold;
+  }
+
+  input {
+    width: 100%;
+    padding: 0.8rem;
+    border: 2px solid #ddd;
+    border-radius: 5px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+  }
+
+  input:focus {
+    outline: none;
+    border-color: #3498db;
+  }
+
+  button {
+    background: #3498db;
+    color: white;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background 0.3s ease;
+    width: 100%;
+  }
+
+  button:hover {
+    background: #2980b9;
+  }
+
+  .result {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 5px;
+    border: 1px solid #dee2e6;
+  }
+
+  .copy-button {
+    background: #27ae60;
+    margin-top: 0.5rem;
+  }
+
+  .copy-button:hover {
+    background: #219a52;
+  }
+
+  .animation {
+    transition: all 0.3s ease;
+  }
+
+  .shake {
+    animation: shake 0.5s;
+  }
+
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Removedor de Pontos e Traços</h1>
+  
+  <div class="input-group">
+    <label for="input">Digite CPF ou CNPJ:</label>
+    <input type="text" id="input" placeholder="Ex: 123.456.789-00 ou 12.345.678/0001-90" maxlength="18">
+  </div>
+
+  <button onclick="stripCharacters()">Remover Pontos e Traços</button>
+
+  <div class="result" id="result">
+    Resultado aparecerá aqui
+  </div>
+
+  <button class="copy-button" onclick="copyResult()">Copiar Resultado</button>
+</div>
+
+<script>
+function stripCharacters() {
+  const input = document.getElementById('input').value;
+  const stripped = input.replace(/[^\d]/g, '');
+  
+  if (stripped.length !== 11 && stripped.length !== 14) {
+    document.getElementById('input').classList.add('shake');
+    setTimeout(() => {
+      document.getElementById('input').classList.remove('shake');
+    }, 500);
+    document.getElementById('result').innerText = 'Por favor, digite um CPF (11 dígitos) ou CNPJ (14 dígitos) válido';
+    return;
+  }
+
+  document.getElementById('result').innerText = stripped;
+}
+
+function copyResult() {
+  const result = document.getElementById('result').innerText;
+  
+  if (result === 'Resultado aparecerá aqui' || 
+      result === 'Por favor, digite um CPF (11 dígitos) ou CNPJ (14 dígitos) válido') {
+    return;
+  }
+
+  navigator.clipboard.writeText(result).then(() => {
+    const button = document.querySelector('.copy-button');
+    const originalText = button.innerText;
+    button.innerText = 'Copiado!';
+    setTimeout(() => {
+      button.innerText = originalText;
+    }, 2000);
+  });
+}
+
+// Adiciona máscara automática
+document.getElementById('input').addEventListener('input', function(e) {
+  let value = e.target.value.replace(/\D/g, '');
+  
+  if (value.length <= 11) { // CPF
+    if (value.length > 9) {
+      value = value.replace(/(\d{3})(\d{3})(\d{3})(\d{1,2})/g, '$1.$2.$3-$4');
+    } else if (value.length > 6) {
+      value = value.replace(/(\d{3})(\d{3})(\d{1,3})/g, '$1.$2.$3');
+    } else if (value.length > 3) {
+      value = value.replace(/(\d{3})(\d{1,3})/g, '$1.$2');
+    }
+  } else { // CNPJ
+    if (value.length > 12) {
+      value = value.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{1,2})/g, '$1.$2.$3/$4-$5');
+    } else if (value.length > 8) {
+      value = value.replace(/(\d{2})(\d{3})(\d{3})(\d{1,4})/g, '$1.$2.$3/$4');
+    } else if (value.length > 5) {
+      value = value.replace(/(\d{2})(\d{3})(\d{1,3})/g, '$1.$2.$3');
+    } else if (value.length > 2) {
+      value = value.replace(/(\d{2})(\d{1,3})/g, '$1.$2');
+    }
+  }
+  
+  e.target.value = value;
+});
+</script>
+</body></html>
